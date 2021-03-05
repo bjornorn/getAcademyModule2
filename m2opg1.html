@@ -26,40 +26,56 @@
     </style>
 </head>
 <body>
-<input type="date"/>
-Oppgaver
-<ol>
-    <li>
-        Legg til person. Må kunne angis når man lager ny oppgave og må
-        kunne redigeres
-    </li>
-    <li>Legg til kolonne for frist. Bruk input-tag med type="date".
-        Konvertering til visningsformat: <tt>new Date("2019-02-13").toLocaleDateString()</tt>
-    </li>
-    <li>Lag kolonne for "gjort dato" som fylles ut automatisk når man 
-        trykker på checkboxen for at det er gjort.</li>
 
-
-</ol>
-<table id="tasksTable"></table>
-<p>
-    <input id="addPerson" type="text" placeholder="Hvem skal gjøre oppgaven?"/></br>
-    <input id="taskDescription" type="text" placeholder="Hva er oppgaven?"/><button onclick="addTask()">Legg til oppgave</button>
-</p>
+    Oppgaver
+    <ol>
+        <li>
+            Legg til person. Må kunne angis når man lager ny oppgave og må
+            kunne redigeres
+        </li>
+        <li>Legg til kolonne for frist. Bruk input-tag med type="date".
+            Konvertering til visningsformat: <tt>new Date("2019-02-13").toLocaleDateString()</tt>
+        </li>
+        <li>Lag kolonne for "gjort dato" som fylles ut automatisk når man 
+            trykker på checkboxen for at det er gjort.</li>
+            
+            
+        </ol>
+        <table id="tasksTable"></table>
+        <p>
+            <input id="newTaskDate" type="date"/></br>
+            <input id="addPerson" type="text" placeholder="Hvem skal gjøre oppgaven?"/></br>
+            <input id="taskDescription" type="text" placeholder="Hva er oppgaven?"/><button onclick="addTask()" >Legg til oppgave</button>
+            </p></br>
 <script>
-    // Model
+    // Model    
     dato = new Date();
     y = dato.getFullYear();
     m = dato.getMonth() + 1;
     d = dato.getDay();
-    dagensDato = new Date(dato).toLocaleDateString()
+    // dagensDato = d + '.' + m + '.' + y;
+    
+    const futureDate = new Date();
+    futureDate.setDate(futureDate.getDate() + 7);
+    let omEnUke = futureDate.toLocaleDateString();
+
+    dagensDato = new Date().toLocaleDateString(dato);
     
     let fristDato;
     let ferdigDato;
-    let ferdigDatoIndex = ferdigDato == undefined ? "Ikke ferdig" : dagensDato;
+    let ferdigDatoIndex = ferdigDato == undefined ? "Ikke ferdig" : omEnUke;
+    
+    // let disableIndex = 'disabled';
+    // let newTaskDate = document.getElementById("newTaskDate"); 
+    // let addPerson = document.getElementById("addPerson"); 
+    // let taskDescreption = document.getElementById("taskDescreption"); 
+
+    // let taskValue = taskDescreption;
+    // let personValue = null;
+    // let dateValue = dagensDato;
 
     var tasks = [
-        { description: 'Handle til middag', person: 'Ukjent', fristDato: dagensDato, isDone: true, ferdigDato: ferdigDatoIndex},
+        { description: 'Handle til middag', person: 'Ukjent', fristDato: dagensDato, isDone: false, ferdigDato: ferdigDatoIndex},
         { description: 'Lage middag', person: 'Ukjent', fristDato: dagensDato, isDone: false, ferdigDato: ferdigDatoIndex },
         { description: 'Spise middag', person: 'Ukjent', fristDato: dagensDato, isDone: false, ferdigDato: ferdigDatoIndex },
     ];
@@ -69,13 +85,16 @@ Oppgaver
     // Controller
     var taskDescriptionInput = document.getElementById('taskDescription');
     var personInput = document.getElementById('addPerson');
+    
 
 
     function addTask() {
         tasks.push({
             description: taskDescriptionInput.value,
             person: personInput.value,
-            isDone: false
+            fristDato: new Date (newTaskDate.value).toLocaleDateString(),
+            isDone: false,
+            ferdigDato: ferdigDatoIndex
         });
         taskDescriptionInput.value = '';
         show();
@@ -87,6 +106,7 @@ Oppgaver
 
     function show() {
         let html = `
+     
                         <tr>
                             <th>Oppgave</th>
                             <th>Person</th>
@@ -122,7 +142,7 @@ Oppgaver
         return `<tr>
                             <td><input id="editDescription${i}" type="text" value="${task.description}"/></td>
                             <td><input id="editPerson${i}" type="text" value="${task.person}"/></td>
-                            <td><input id="editDato${i}" type="date" value="${task.fristDato}"/></td>
+                            <td><input id="editDato${i}" type="toLocaleDateString(date)" value="${task.fristDato}"/></td>
                             <td><input onchange="changeIsDone(this, ${i})" type="checkbox" ${checkedHtml} /></td>
                             <td>
                                 <button onclick="updateTask(${i})">Lagre</button>
@@ -133,6 +153,11 @@ Oppgaver
 
     function changeIsDone(checkbox, index) {
         tasks[index].isDone = checkbox.checked;
+        tasks[index].ferdigDato = dagensDato;
+        
+        if (tasks[index].isDone == false) {
+            tasks[index].ferdigDato = "Ikke Ferdig";            
+        }
         show();
     }
 
@@ -157,11 +182,13 @@ Oppgaver
         task.description = inputTag.value;
         task.person = inputTag2.value;
         // task.dato = inputTag3.value;
-        if (task.fristDato == "2.3.2020") {task.fristDato = new Date(inputTag3.value).toLocaleDateString();}
+        task.fristDato = new Date(inputTag3.value).toLocaleDateString();
         console.log(inputTag3.value);
         task.editMode = false;
         show();
     }
+    
+
 </script>
 </body>
 </html>
